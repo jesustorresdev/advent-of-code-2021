@@ -40,7 +40,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aoc_02a() {
+    fn test_aoc_02b() {
         let input = std::fs::read_to_string("input/test.txt").unwrap();
         assert_eq!(aoc_02b(&input), 900)
     }

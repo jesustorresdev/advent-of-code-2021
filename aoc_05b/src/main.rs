@@ -6,7 +6,7 @@ type Point = (Coord ,Coord);
 const GRID_SIZES: (usize, usize) = (1024,1024);
 //const GRID_SIZES: (usize, usize) = (10,10);
 
-fn prepare_aoc_05a_input(filename: &str) -> Result<Vec<(Point,Point)>, std::io::Error> {
+fn prepare_aoc_05b_input(filename: &str) -> Result<Vec<(Point,Point)>, std::io::Error> {
     let content = std::fs::read_to_string(filename)?;
 
     let line_regex = Regex::new(r"(\d+),(\d+) -> (\d+),(\d+)").unwrap();
@@ -61,7 +61,7 @@ fn search_overlap(grid: &[[u8; GRID_SIZES.0]; GRID_SIZES.0]) -> usize {
     count
 }
 
-fn solve_aoc_05a(input: &[(Point,Point)]) -> usize {
+fn solve_aoc_05b(input: &[(Point,Point)]) -> usize {
     //println!("{:?}", input);
 
     let mut grid: [[u8; GRID_SIZES.0]; GRID_SIZES.1] = [[0; GRID_SIZES.0]; GRID_SIZES.1];
@@ -85,8 +85,8 @@ fn solve_aoc_05a(input: &[(Point,Point)]) -> usize {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    let input = prepare_aoc_05a_input("input/input.txt")?;
-    let result = solve_aoc_05a(&input);
+    let input = prepare_aoc_05b_input("input/input.txt")?;
+    let result = solve_aoc_05b(&input);
 
     println!("The result is {}!!", result);
     Ok(())
@@ -97,9 +97,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aoc_02a() {
-        let input = prepare_aoc_05a_input("input/test.txt").unwrap();
-        let result = solve_aoc_05a(&input);
+    fn test_aoc_05b() {
+        let input = prepare_aoc_05b_input("input/test.txt").unwrap();
+        let result = solve_aoc_05b(&input);
 
         assert_eq!(result, 12)
     }

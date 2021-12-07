@@ -88,7 +88,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aoc_02a() {
+    fn test_aoc_06a() {
         let input = prepare_aoc_06a_input("input/test.txt").unwrap();
         let result = solve_aoc_06a(&input);
 

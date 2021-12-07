@@ -55,7 +55,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aoc_02a() {
+    fn test_aoc_03b() {
         let input = prepare_aoc_03b_input("input/test.txt").unwrap();
         let result = solve_aoc_03b(&input, 5);
 
