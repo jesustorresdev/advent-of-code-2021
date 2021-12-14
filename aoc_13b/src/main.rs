@@ -14,7 +14,7 @@ struct Fold {
 
 type Page = Array<bool, Ix2>;
 
-fn prepare_aoc_12b_input(filename: &str) -> Result<(Page, Vec<Fold>), std::io::Error> {
+fn prepare_aoc_13b_input(filename: &str) -> Result<(Page, Vec<Fold>), std::io::Error> {
     let content = std::fs::read_to_string(filename)?;
     let mut lines = content.lines();
     
@@ -58,7 +58,7 @@ fn prepare_aoc_12b_input(filename: &str) -> Result<(Page, Vec<Fold>), std::io::E
     Ok((page, folds))
 }
 
-fn solve_aoc_12b(page: Page, folds: Vec<Fold>) -> usize {
+fn solve_aoc_13b(page: Page, folds: Vec<Fold>) -> usize {
     //println!("page: {:?}", page);
     //println!("fold: {:?}", folds);
 
@@ -92,8 +92,8 @@ fn solve_aoc_12b(page: Page, folds: Vec<Fold>) -> usize {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    let (page, folds) = prepare_aoc_12b_input("input/input.txt")?;
-    let result = solve_aoc_12b(page, folds);
+    let (page, folds) = prepare_aoc_13b_input("input/input.txt")?;
+    let result = solve_aoc_13b(page, folds);
 
     println!("The result is {}!!", result);
     Ok(())
@@ -104,9 +104,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aoc_12b() {
-        let (page, folds) = prepare_aoc_12b_input("input/test.txt").unwrap();
-        let result = solve_aoc_12b(page, folds);
+    fn test_aoc_13b() {
+        let (page, folds) = prepare_aoc_13b_input("input/test.txt").unwrap();
+        let result = solve_aoc_13b(page, folds);
 
         assert_eq!(result, 17)
     }
