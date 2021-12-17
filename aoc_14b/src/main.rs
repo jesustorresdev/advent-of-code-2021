@@ -1,67 +1,71 @@
 use regex::Regex;
+use std::collections::HashMap;
 
-const FIRST_ALPHA: u8 = 65;
-const NUM_OF_CHARS: usize = 26;
-const NUM_OF_PAIRS: usize = NUM_OF_CHARS * NUM_OF_CHARS;
+type Pair = (u8, u8);
 
-fn prepare_aoc_14b_input(filename: &str) -> Result<(Vec<u8>, Vec<u8>), std::io::Error> {
+fn prepare_aoc_14b_input(filename: &str) -> Result<(Vec<u8>, HashMap<Pair, u8>), std::io::Error> {
     let content = std::fs::read_to_string(filename)?;
     let mut lines = content.lines();
 
-    let sequence = lines.next().unwrap().bytes().map(|c| alpha_to_id(c)).collect();
+    let sequence = lines.next().unwrap().bytes().collect();
     lines.next();
 
     let line_regex = Regex::new(r"(.)(.) -> (.)").unwrap();
-    let mut rules: Vec<u8> = vec![255; NUM_OF_PAIRS];
+    let mut rules: HashMap<Pair, u8> = HashMap::new();
     for line in lines.filter(|line| !line.is_empty()) {
         let captures = line_regex.captures(line).unwrap();
-        let pair_first: u8 = alpha_to_id(captures.get(1).unwrap().as_str().as_bytes()[0]);
-        let pair_second: u8 = alpha_to_id(captures.get(2).unwrap().as_str().as_bytes()[0]);
-        let element = alpha_to_id(captures.get(3).unwrap().as_str().as_bytes()[0]);
-        rules[pair_to_id((pair_first, pair_second))] = element;
+        let pair_first: u8 = captures.get(1).unwrap().as_str().as_bytes()[0];
+        let pair_second: u8 = captures.get(2).unwrap().as_str().as_bytes()[0];
+        let element = captures.get(3).unwrap().as_str().as_bytes()[0];
+        rules.insert((pair_first, pair_second), element);
     }
 
     Ok((sequence, rules))
 }
 
-fn alpha_to_id(c: u8) -> u8 {
-    c - FIRST_ALPHA
-}
+fn solve_aoc_14b(sequence: &[u8], rules: &HashMap<Pair, u8>) -> usize {
+    println!("{:?}\n{:?}", sequence, rules);
 
-fn pair_to_id(pair: (u8, u8)) -> usize {
-    pair.0 as usize * NUM_OF_CHARS + pair.1 as usize
-}
+    let mut pairs_histogram: HashMap<Pair, isize> = HashMap::new();
+    let mut histogram: [usize; 26] = [0; 26];
 
-fn update_histogram(start_pair: (u8, u8), rules: &[u8], histogram: &mut [usize; 26], step: usize) {
-    let mut next_pairs: Vec<((u8, u8), usize)> = Vec::with_capacity(step * 2);
-    next_pairs.push((start_pair, step));
+    for i in 0..sequence.len() - 1 {
+        histogram[(sequence[i] - 65) as usize] += 1;
 
-    while next_pairs.len() > 0 {
-        let (next_pair, step) = next_pairs.pop().unwrap();
-        let new_item = rules[pair_to_id(next_pair)];
-        if new_item != 255 {
-            histogram[new_item as usize] += 1;
-            if step > 1 {
-                next_pairs.push(((next_pair.0, new_item), step - 1));
-                next_pairs.push(((new_item, next_pair.1), step - 1));
+        // Init pairs histogram
+        let pair = (sequence[i], sequence[i + 1]);
+        let freq = pairs_histogram.get(&pair).unwrap_or(&0).clone();
+        pairs_histogram.insert(pair, freq + 1);
+    }
+    histogram[(sequence[sequence.len() - 1] - 65) as usize] += 1;
+
+    for _ in 0..40 {
+        println!("{:?}", pairs_histogram);
+
+        let mut new_pairs_histogram = pairs_histogram.clone();
+
+        for pair in pairs_histogram.keys() {
+            let freq = pairs_histogram[&pair];
+            if rules.contains_key(&pair) {
+                let prev_freq = new_pairs_histogram.get(&pair).unwrap_or(&0).clone();
+                new_pairs_histogram.insert(*pair, prev_freq - freq);
+
+                let pair_left = (pair.0, rules[&pair]);
+                let freq_left = new_pairs_histogram.get(&pair_left).unwrap_or(&0).clone();
+                new_pairs_histogram.insert(pair_left, freq_left + freq);
+                
+                let pair_right = (rules[&pair], pair.1);
+                let freq_right = new_pairs_histogram.get(&pair_right).unwrap_or(&0).clone();
+                new_pairs_histogram.insert(pair_right, freq_right + freq);
+
+                histogram[(pair_left.1 - 65) as usize] += freq as usize;
             }
         }
-    }
-}
 
-fn solve_aoc_14b(sequence: &[u8], rules: &[u8]) -> usize {
-    //println!("{:?}\n{:?}", sequence, rules);
-
-    let mut histogram: [usize; NUM_OF_CHARS] = [0; NUM_OF_CHARS];
-    
-    histogram[sequence[0] as usize] += 1;
-    for i in 0..sequence.len() - 1 {
-        let pair: (u8, u8) = (sequence[i], sequence[i+1]);
-        histogram[pair.1 as usize] += 1;
-        update_histogram(pair, &rules, &mut histogram, 40);
-        //update_histogram(pair, &rules, &mut histogram, 40);
+        pairs_histogram = new_pairs_histogram;
     }
-    
+
+    //println!("{:?}", pairs_histogram);
     //println!("{:?}", histogram);
 
     let mut min: (u8, usize) = (0, usize::MAX);
@@ -94,7 +98,7 @@ mod tests {
         let (sequence, rules) = prepare_aoc_14b_input("input/test.txt").unwrap();
         let result = solve_aoc_14b(&sequence, &rules);
 
-        assert_eq!(result, 1588)
-        //assert_eq!(result, 2188189693529)
+        //assert_eq!(result, 1588)
+        assert_eq!(result, 2188189693529)
     }
 }
